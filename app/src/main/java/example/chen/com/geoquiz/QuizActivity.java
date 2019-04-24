@@ -23,12 +23,12 @@ public class QuizActivity extends AppCompatActivity {
 
 
     private Question[] mQuestionsBank = new Question[]{
-            new Question(R.string.question_australia, true),
-            new Question(R.string.question_oceans, true),
-            new Question(R.string.question_mideast, false),
-            new Question(R.string.question_africa, false),
-            new Question(R.string.question_americas, true),
-            new Question(R.string.question_asia, true)
+            new Question(R.string.question_australia, true, false),
+            new Question(R.string.question_oceans, true, false),
+            new Question(R.string.question_mideast, false, false),
+            new Question(R.string.question_africa, false, false),
+            new Question(R.string.question_americas, true, false),
+            new Question(R.string.question_asia, true, false)
     };
 
     private int mCurrentIndex = 0;
@@ -54,7 +54,6 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 checkAnswer(true);
-
             }
         });
 
@@ -69,6 +68,7 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 nextQuestionView();
+
             }
         });
 
@@ -111,7 +111,7 @@ public class QuizActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(KEY_INDEX,mCurrentIndex );
+        outState.putInt(KEY_INDEX, mCurrentIndex);
     }
 
     @Override
@@ -138,11 +138,12 @@ public class QuizActivity extends AppCompatActivity {
 
         int messageResId = 0;
         if (userAnswer == questionAnswer) {
+            mQuestionsBank[mCurrentIndex].setSolved(true);
             messageResId = R.string.correct_toast;
         } else {
             messageResId = R.string.incorrect_toast;
         }
-
+        updateButtonByIndex();
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show();
     }
 
@@ -151,6 +152,7 @@ public class QuizActivity extends AppCompatActivity {
     public void nextQuestionView() {
         mCurrentIndex = (mCurrentIndex + 1) % mQuestionsBank.length;
         updateQuestionView();
+        updateButtonByIndex();
     }
 
     //页面跳转到前一个问题
@@ -162,6 +164,19 @@ public class QuizActivity extends AppCompatActivity {
         }
 
         updateQuestionView();
+        updateButtonByIndex();
+    }
+
+    private void updateButtonByIndex() {
+        boolean isSolved = mQuestionsBank[mCurrentIndex].isSolved();
+
+        if (isSolved) {
+            mTrueButton.setEnabled(false);
+            mFalseButton.setEnabled(false);
+        } else {
+            mTrueButton.setEnabled(true);
+            mFalseButton.setEnabled(true);
+        }
     }
 
 
