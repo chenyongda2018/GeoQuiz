@@ -1,4 +1,4 @@
-package example.chen.com.geoquiz;
+package example.chen.com.geoquiz.Model;
 
 public class Question {
 
