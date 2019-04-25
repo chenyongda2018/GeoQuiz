@@ -1,5 +1,7 @@
 package example.chen.com.geoquiz;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,12 +13,15 @@ import android.widget.Toast;
 
 import example.chen.com.geoquiz.Model.Question;
 
-public class QuizActivity extends AppCompatActivity {
+public class QuizActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "QuizActivity";
     private static final String KEY_INDEX = "index";
+    private static final int REQUEST_CODE_CHEAT = 111;
 
+    private boolean mIsCheat;
     private Button mTrueButton;
     private Button mFalseButton;
+    private Button mCheatButton;
     private TextView mQuestionView;
     private ImageButton mNextButton;
     private ImageButton mPreButton;
@@ -43,49 +48,60 @@ public class QuizActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             mCurrentIndex = savedInstanceState.getInt(KEY_INDEX);
         }
+        //更新问题UI
         updateQuestionView();
+        mCheatButton = (Button) findViewById(R.id.cheat_button);
+        mCheatButton.setOnClickListener(this);
         mNextButton = (ImageButton) findViewById(R.id.next_button);
+        mNextButton.setOnClickListener(this);
         mPreButton = (ImageButton) findViewById(R.id.pre_button);
+        mPreButton.setOnClickListener(this);
         mFalseButton = (Button) findViewById(R.id.false_button);
+        mFalseButton.setOnClickListener(this);
         mTrueButton = (Button) findViewById(R.id.true_button);
+        mTrueButton.setOnClickListener(this);
 
+    }
 
-        mTrueButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.true_button:
                 checkAnswer(true);
-            }
-        });
-
-        mFalseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                break;
+            case R.id.false_button:
                 checkAnswer(false);
-            }
-        });
-
-        mNextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                break;
+            case R.id.next_button:
                 nextQuestionView();
-
-            }
-        });
-
-        mQuestionView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                break;
+            case R.id.question_view:
                 nextQuestionView();
-            }
-        });
-
-        mPreButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                break;
+            case R.id.pre_button:
                 preQuestionView();
-            }
-        });
+                break;
+            case R.id.cheat_button:
+                //进入查看答案页面
+                boolean answerIsTrue = mQuestionsBank[mCurrentIndex].isAnswerTrue();
+                Intent cheatIntent = CheatActivity.newIntent(this, answerIsTrue);
+                startActivityForResult(cheatIntent, REQUEST_CODE_CHEAT);
+                break;
+        }
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+
+        if (requestCode == REQUEST_CODE_CHEAT) {
+            if (data == null) {
+                return;
+            }
+            mIsCheat = CheatActivity.wasAnswerIsShown(data);
+        }
     }
 
     @Override
@@ -169,7 +185,6 @@ public class QuizActivity extends AppCompatActivity {
 
     private void updateButtonByIndex() {
         boolean isSolved = mQuestionsBank[mCurrentIndex].isSolved();
-
         if (isSolved) {
             mTrueButton.setEnabled(false);
             mFalseButton.setEnabled(false);
@@ -178,8 +193,6 @@ public class QuizActivity extends AppCompatActivity {
             mFalseButton.setEnabled(true);
         }
     }
-
-
 
 
 }
