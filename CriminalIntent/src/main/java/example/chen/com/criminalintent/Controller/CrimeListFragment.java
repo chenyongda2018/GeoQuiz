@@ -10,9 +10,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.DateFormat;
 import java.util.List;
 
 import example.chen.com.criminalintent.Model.Crime;
@@ -75,17 +77,20 @@ public class CrimeListFragment extends Fragment {
     private class CrimeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView crimeTitle;
         private TextView crimeDate;
+        private ImageView mSolvedImageView;
 
         CrimeViewHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_crime_item, parent, false));
             itemView.setOnClickListener(this);
+            mSolvedImageView = (ImageView) itemView.findViewById(R.id.crime_solved);
             crimeTitle = (TextView) itemView.findViewById(R.id.crime_title_item);
             crimeDate = (TextView) itemView.findViewById(R.id.crime_date_item);
         }
 
         void bind(Crime crime) {
             crimeTitle.setText(crime.getTitle());
-            crimeDate.setText(crime.getDate().toString());
+            crimeDate.setText(DateFormat.getDateInstance().format(crime.getDate()));
+            mSolvedImageView.setVisibility(crime.isSolved() ? View.VISIBLE : View.INVISIBLE);
         }
 
         @Override
