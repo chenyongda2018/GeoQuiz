@@ -17,7 +17,7 @@ import android.widget.TextView;
 import java.text.DateFormat;
 import java.util.List;
 
-import example.chen.com.criminalintent.Controller.Activity.CrimeActivity;
+import example.chen.com.criminalintent.Controller.Activity.CrimePagerActivity;
 import example.chen.com.criminalintent.Model.Crime;
 import example.chen.com.criminalintent.Model.CrimeLab;
 import example.chen.com.criminalintent.R;
@@ -108,7 +108,7 @@ public class CrimeListFragment extends Fragment {
         @Override
         public void onClick(View v) {
             //进入Crime明细页面
-            Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());
+            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId());
             startActivity(intent);
         }
     }
