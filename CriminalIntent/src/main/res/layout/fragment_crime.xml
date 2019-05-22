@@ -26,7 +26,8 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/crime_date"/>
+        android:id="@+id/crime_date"
+        android:padding="80dp"/>
     <CheckBox
         android:id="@+id/crime_solved"
         android:layout_width="match_parent"

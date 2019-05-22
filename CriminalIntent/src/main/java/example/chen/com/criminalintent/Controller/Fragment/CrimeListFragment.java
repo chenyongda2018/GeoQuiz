@@ -1,5 +1,6 @@
-package example.chen.com.criminalintent.Controller;
+package example.chen.com.criminalintent.Controller.Fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,15 +13,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.util.List;
 
+import example.chen.com.criminalintent.Controller.Activity.CrimeActivity;
 import example.chen.com.criminalintent.Model.Crime;
 import example.chen.com.criminalintent.Model.CrimeLab;
 import example.chen.com.criminalintent.R;
-
+/**
+ * Crime列表页面
+ */
 public class CrimeListFragment extends Fragment {
     private static final String TAG = "CrimeListFragment";
     private RecyclerView mCrimeRecyclerView;
@@ -32,17 +35,24 @@ public class CrimeListFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_crime_list, container, false);
         mCrimeRecyclerView = v.findViewById(R.id.crime_list_recycler_view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        updateUI();
         return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUI();
     }
 
     private void updateUI() {
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
-        Log.d(TAG, crimes.size() + " ");
-        mCrimeListAdapter = new CrimeListAdapter(crimes);
-        mCrimeRecyclerView.setAdapter(mCrimeListAdapter);
-
+        if (mCrimeListAdapter == null) {
+            mCrimeListAdapter = new CrimeListAdapter(crimes);
+            mCrimeRecyclerView.setAdapter(mCrimeListAdapter);
+        } else {
+            mCrimeListAdapter.notifyDataSetChanged();
+        }
     }
 
     private class CrimeListAdapter extends RecyclerView.Adapter<CrimeViewHolder> {
@@ -50,7 +60,6 @@ public class CrimeListFragment extends Fragment {
 
         CrimeListAdapter(List<Crime> crimes) {
             this.mCrimes = crimes;
-
         }
 
         @NonNull
@@ -78,6 +87,7 @@ public class CrimeListFragment extends Fragment {
         private TextView crimeTitle;
         private TextView crimeDate;
         private ImageView mSolvedImageView;
+        private Crime mCrime;
 
         CrimeViewHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_crime_item, parent, false));
@@ -88,14 +98,18 @@ public class CrimeListFragment extends Fragment {
         }
 
         void bind(Crime crime) {
+            this.mCrime = crime;
             crimeTitle.setText(crime.getTitle());
             crimeDate.setText(DateFormat.getDateInstance().format(crime.getDate()));
             mSolvedImageView.setVisibility(crime.isSolved() ? View.VISIBLE : View.INVISIBLE);
         }
 
+        //ViewHolder的点击事件
         @Override
         public void onClick(View v) {
-            Toast.makeText(getActivity(),crimeTitle.getText().toString() ,Toast.LENGTH_SHORT ).show();
+            //进入Crime明细页面
+            Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());
+            startActivity(intent);
         }
     }
 }

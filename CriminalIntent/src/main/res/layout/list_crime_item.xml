@@ -45,5 +45,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_closed_caption_black_24dp" />
+        app:srcCompat="@drawable/ic_shoukao_svg" />
 </android.support.constraint.ConstraintLayout>

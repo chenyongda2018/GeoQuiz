@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
-import example.chen.com.criminalintent.Controller.CrimeFragment;
 import example.chen.com.criminalintent.R;
 
 public abstract class SingleFragmentActivity extends AppCompatActivity {
