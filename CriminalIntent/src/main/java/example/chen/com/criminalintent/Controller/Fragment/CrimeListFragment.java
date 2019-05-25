@@ -5,10 +5,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -21,6 +25,7 @@ import example.chen.com.criminalintent.Controller.Activity.CrimePagerActivity;
 import example.chen.com.criminalintent.Model.Crime;
 import example.chen.com.criminalintent.Model.CrimeLab;
 import example.chen.com.criminalintent.R;
+
 /**
  * Crime列表页面
  */
@@ -28,6 +33,13 @@ public class CrimeListFragment extends Fragment {
     private static final String TAG = "CrimeListFragment";
     private RecyclerView mCrimeRecyclerView;
     private CrimeListAdapter mCrimeListAdapter;
+    private boolean mSubTitleVisible;
+    public static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true); //让FragmentManager知道fragment需要接收选项菜单方法的回调
+    }
 
     @Nullable
     @Override
@@ -35,6 +47,11 @@ public class CrimeListFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_crime_list, container, false);
         mCrimeRecyclerView = v.findViewById(R.id.crime_list_recycler_view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        if(savedInstanceState != null) {
+            mSubTitleVisible = savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
+        }
+        updateUI();
         return v;
     }
 
@@ -42,6 +59,60 @@ public class CrimeListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         updateUI();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_crime_list, menu);
+        MenuItem subTitleItem = menu.findItem(R.id.show_subtitle);
+        if (mSubTitleVisible) {
+            subTitleItem.setTitle(R.string.hide_subtitle);
+        } else {
+            subTitleItem.setTitle(R.string.show_subtitle);
+        }
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.new_crime:
+                Crime crime = new Crime();
+                CrimeLab.get(getContext()).addCrime(crime);
+                Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId());
+                startActivity(intent);
+
+                return true;
+            case R.id.show_subtitle:
+                mSubTitleVisible = !mSubTitleVisible;
+                getActivity().invalidateOptionsMenu();//重建菜单项
+                updateSubtitle();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(SAVED_SUBTITLE_VISIBLE, mSubTitleVisible);
+    }
+
+    /**
+     * 更新副标题
+     */
+    private void updateSubtitle() {
+        CrimeLab crimeLab = CrimeLab.get(getContext());
+        int crimeCount = crimeLab.getCrimes().size();
+        String subTitle = getString(R.string.subtitle_format, crimeCount);
+
+        if (!mSubTitleVisible) {
+            subTitle = null;
+        }
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.getSupportActionBar().setSubtitle(subTitle);
     }
 
     private void updateUI() {
@@ -53,6 +124,7 @@ public class CrimeListFragment extends Fragment {
         } else {
             mCrimeListAdapter.notifyDataSetChanged();
         }
+        updateSubtitle();
     }
 
     private class CrimeListAdapter extends RecyclerView.Adapter<CrimeViewHolder> {
