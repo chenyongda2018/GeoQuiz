@@ -1,14 +1,25 @@
 package example.chen.com.criminalintent.Model;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.CursorWrapper;
+import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import example.chen.com.criminalintent.database.CrimeDbSchema.CrimeBaseHelper;
+import example.chen.com.criminalintent.database.CrimeDbSchema.CrimeCursorWrapper;
+import example.chen.com.criminalintent.database.CrimeDbSchema.CrimeDbSchema;
+
+import static example.chen.com.criminalintent.database.CrimeDbSchema.CrimeDbSchema.*;
+
 public class CrimeLab {
     private static CrimeLab sCrimeLab;
-    private List<Crime> mCrimes;
+    private Context mContext;
+    private SQLiteDatabase mSQLiteDatabase;
 
     public static CrimeLab get(Context context) {
         if (sCrimeLab == null) {
@@ -18,23 +29,101 @@ public class CrimeLab {
     }
 
     private CrimeLab(Context context) {
-        mCrimes = new ArrayList<>();
+        mContext = context.getApplicationContext();
+        mSQLiteDatabase = new CrimeBaseHelper(mContext).getWritableDatabase();
     }
 
+    /**
+     * 新插入一个Crime记录
+     * @param crime
+     */
     public void addCrime(Crime crime) {
-        mCrimes.add(crime);
+        ContentValues values = getContentValues(crime);
+        mSQLiteDatabase.insert(CrimeTable.NAME, null, values);
     }
 
+    /**
+     * 获得所有Crime记录
+     * @return
+     */
     public List<Crime> getCrimes() {
-        return mCrimes;
+        List<Crime> crimes = new ArrayList<>();
+        CrimeCursorWrapper cursorWrapper = queryCrimes(null, null);
+
+        try {
+            cursorWrapper.moveToFirst();
+            while (!cursorWrapper.isAfterLast()) {
+                crimes.add(cursorWrapper.getCrime());
+                cursorWrapper.moveToNext();
+            }
+        } finally {
+            cursorWrapper.close();
+        }
+
+        return crimes;
+
     }
 
+    /**
+     * 获得单个Crime记录
+     * @param id
+     * @return
+     */
     public Crime getCrime(UUID id) {
-        for (Crime c : mCrimes) {
-            if (c.getId().equals(id)) {
-                return c;
+        CrimeCursorWrapper cursor = queryCrimes(CrimeTable.Cols.UUID,new String[] {id.toString()} );
+
+        try {
+            if(cursor.getCount() == 0) {
+                return null;
             }
+            cursor.moveToFirst();
+            return cursor.getCrime();
+        } finally {
+            cursor.close();
         }
-        return null;
+    }
+
+    /**
+     * 更新Crime记录
+     * @param crime
+     */
+    public void updateCrime(Crime crime) {
+        String uuidString = crime.getId().toString();
+        ContentValues values = getContentValues(crime);
+        mSQLiteDatabase.update(CrimeTable.NAME, values,
+                CrimeTable.Cols.UUID + " = ?", new String[]{uuidString});
+    }
+
+    /**
+     * 获得封装的含有所有Crime记录的CursorWrapper
+     * @param whereClause
+     * @param whereArgs
+     * @return
+     */
+    private CrimeCursorWrapper queryCrimes(String whereClause, String[] whereArgs) {
+        Cursor cursor = mSQLiteDatabase.query(
+                CrimeTable.NAME,
+                null,
+                whereClause,
+                whereArgs,
+                null,
+                null,
+                null);
+        return new CrimeCursorWrapper(cursor);
+    }
+
+    /**
+     * Crime表中的一行，相当与元组
+     *
+     * @param crime
+     * @return
+     */
+    private static ContentValues getContentValues(Crime crime) {
+        ContentValues values = new ContentValues();
+        values.put(CrimeTable.Cols.UUID, crime.getId().toString());
+        values.put(CrimeTable.Cols.TITLE, crime.getTitle());
+        values.put(CrimeTable.Cols.DATE, crime.getDate().getTime());
+        values.put(CrimeTable.Cols.SOLVED, crime.isSolved() ? 1 : 0);
+        return values;
     }
 }
