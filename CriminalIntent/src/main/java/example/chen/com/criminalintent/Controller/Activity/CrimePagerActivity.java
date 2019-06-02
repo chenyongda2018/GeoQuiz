@@ -34,10 +34,12 @@ public class CrimePagerActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_crime_pager);
-        UUID crimeId = (UUID)getIntent().getSerializableExtra(EXTRA_CRIME_ID);
+        UUID crimeId = (UUID) getIntent().getSerializableExtra(EXTRA_CRIME_ID);
         mViewPager = findViewById(R.id.activity_crime_pager);
         mCrimes = CrimeLab.get(this).getCrimes();
         FragmentManager fm = getSupportFragmentManager();
+
+
 
         mViewPager.setAdapter(new FragmentStatePagerAdapter(fm) {
             @Override
@@ -50,6 +52,7 @@ public class CrimePagerActivity extends AppCompatActivity {
                 return mCrimes.size();
             }
         });
+        mViewPager.setCurrentItem(CrimeLab.get(this).getCrimeOrder(crimeId));//设置当前点进来所要显示的item
 
     }
 }

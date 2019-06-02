@@ -35,6 +35,7 @@ public class CrimeLab {
 
     /**
      * 新插入一个Crime记录
+     *
      * @param crime
      */
     public void addCrime(Crime crime) {
@@ -44,6 +45,7 @@ public class CrimeLab {
 
     /**
      * 获得所有Crime记录
+     *
      * @return
      */
     public List<Crime> getCrimes() {
@@ -66,14 +68,15 @@ public class CrimeLab {
 
     /**
      * 获得单个Crime记录
+     *
      * @param id
      * @return
      */
     public Crime getCrime(UUID id) {
-        CrimeCursorWrapper cursor = queryCrimes(CrimeTable.Cols.UUID,new String[] {id.toString()} );
+        CrimeCursorWrapper cursor = queryCrimes(CrimeTable.Cols.UUID + " = ? ", new String[]{id.toString()});
 
         try {
-            if(cursor.getCount() == 0) {
+            if (cursor.getCount() == 0) {
                 return null;
             }
             cursor.moveToFirst();
@@ -84,7 +87,28 @@ public class CrimeLab {
     }
 
     /**
+     * 返回Crime在数据表中的位置
+     */
+    public int getCrimeOrder(UUID id) {
+        CrimeCursorWrapper cursor = queryCrimes(null, null);
+        try {
+            int order = 0;
+            while (cursor.moveToNext()) {
+                Crime crime = cursor.getCrime();
+                if (crime.getId().toString().equals(id.toString())) {
+                    return order;
+                }
+                order ++;
+            }
+        } finally {
+            cursor.close();
+        }
+        return -1;
+    }
+
+    /**
      * 更新Crime记录
+     *
      * @param crime
      */
     public void updateCrime(Crime crime) {
@@ -96,6 +120,7 @@ public class CrimeLab {
 
     /**
      * 获得封装的含有所有Crime记录的CursorWrapper
+     *
      * @param whereClause
      * @param whereArgs
      * @return
