@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--单板面布局 name->给布局起别名 -->
+    <item name="activity_masterdetail" type="layout">@layout/activity_fragment</item>
+
+</resources>

@@ -1,6 +1,7 @@
 package example.chen.com.criminalintent.Controller.Fragment;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -62,6 +63,17 @@ public class CrimeFragment extends Fragment {
     private Button mSuspectButton;
     private ImageView mPhotoView;
     private ImageButton mPhotoButton;
+    private Callbacks mCallbacks;
+
+    public interface Callbacks {
+        void onCrimeUpdated(Crime crime);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallbacks = (Callbacks) context;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -108,6 +120,7 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 mCrime.setTitle(s.toString());
+                updateCrime();
             }
 
             @Override
@@ -121,10 +134,11 @@ public class CrimeFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mSolvedCheckBox.setChecked(isChecked);
                 mCrime.setSolved(isChecked);
+                updateCrime();
             }
         });
 
-        mReportButton.setOnClickListener(new View.OnClickListener() {
+        mReportButton.setOnClickListener(new OnClickListener() {
             //发送隐式Intent
             @Override
             public void onClick(View v) {
@@ -138,7 +152,7 @@ public class CrimeFragment extends Fragment {
         });
 
         final Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-        mSuspectButton.setOnClickListener(new View.OnClickListener() {
+        mSuspectButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivityForResult(pickContact, REQUEST_CONTACT);
@@ -160,7 +174,7 @@ public class CrimeFragment extends Fragment {
         boolean canTakePhoto = mPhotoFile != null && captureIntent.resolveActivity(packageManager) != null;
         mPhotoButton.setEnabled(canTakePhoto);
 
-        mPhotoButton.setOnClickListener(new View.OnClickListener() {
+        mPhotoButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 Uri uri = FileProvider.getUriForFile(getActivity(),
@@ -194,6 +208,12 @@ public class CrimeFragment extends Fragment {
         CrimeLab.get(getActivity()).updateCrime(mCrime);
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
+    }
+
     /**
      * 方便用来接收其他活动穿过来的数据
      *
@@ -217,6 +237,7 @@ public class CrimeFragment extends Fragment {
             Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
             mCrime.setDate(date);
             updateDate(date);
+            updateCrime();
         }
         if (requestCode == REQUEST_CONTACT && data != null) { //返回选择的联系人姓名
             Uri contactUri = data.getData();
@@ -236,6 +257,7 @@ public class CrimeFragment extends Fragment {
                 String suspect = c.getString(0);
                 mCrime.setSuspect(suspect);
                 mSuspectButton.setText(suspect);
+                updateCrime();
             } finally {
                 c.close();
             }
@@ -248,7 +270,13 @@ public class CrimeFragment extends Fragment {
                     mPhotoFile);
             getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             updatePhotoView();
+            updateCrime();
         }
+    }
+
+    private void updateCrime() {
+        CrimeLab.get(getActivity()).updateCrime(mCrime);
+        mCallbacks.onCrimeUpdated(mCrime);
     }
 
     private void updateDate(Date date) {

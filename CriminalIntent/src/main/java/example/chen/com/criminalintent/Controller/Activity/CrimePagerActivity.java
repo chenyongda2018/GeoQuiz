@@ -18,7 +18,7 @@ import example.chen.com.criminalintent.Model.Crime;
 import example.chen.com.criminalintent.Model.CrimeLab;
 import example.chen.com.criminalintent.R;
 
-public class CrimePagerActivity extends AppCompatActivity {
+public class CrimePagerActivity extends AppCompatActivity implements CrimeFragment.Callbacks{
 
     public static final String EXTRA_CRIME_ID = "com.criminalintent.Controller.Activity.CrimePagerActivity.crime_id";
     private List<Crime> mCrimes;
@@ -53,6 +53,11 @@ public class CrimePagerActivity extends AppCompatActivity {
             }
         });
         mViewPager.setCurrentItem(CrimeLab.get(this).getCrimeOrder(crimeId));//设置当前点进来所要显示的item
+
+    }
+
+    @Override
+    public void onCrimeUpdated(Crime crime) {
 
     }
 }
