@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -21,6 +23,7 @@ import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -36,6 +39,7 @@ import java.util.UUID;
 import example.chen.com.criminalintent.Model.Crime;
 import example.chen.com.criminalintent.Model.CrimeLab;
 import example.chen.com.criminalintent.R;
+import example.chen.com.criminalintent.Utils.PictureUtils;
 
 import static android.widget.CompoundButton.*;
 
@@ -78,6 +82,7 @@ public class CrimeFragment extends Fragment {
         mReportButton = v.findViewById(R.id.send_crime_report);
         mPhotoButton = v.findViewById(R.id.crime_camera);
         mPhotoView = v.findViewById(R.id.crime_photo);
+        updatePhotoView();
         mSuspectButton = v.findViewById(R.id.choose_suspect);
         mSolvedCheckBox.setChecked(mCrime.isSolved());
         updateDate(mCrime.getDate());
@@ -174,7 +179,7 @@ public class CrimeFragment extends Fragment {
                             Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 }
 
-                startActivityForResult(captureIntent,REQUEST_PHOTO );
+                startActivityForResult(captureIntent, REQUEST_PHOTO);
             }
 
         });
@@ -236,11 +241,43 @@ public class CrimeFragment extends Fragment {
             }
 
         }
+
+        if (requestCode == REQUEST_PHOTO) {
+            Uri uri = FileProvider.getUriForFile(getActivity(),
+                    "example.chen.com.criminalintent.fileprovider",
+                    mPhotoFile);
+            getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            updatePhotoView();
+        }
     }
 
     private void updateDate(Date date) {
         mDateBtn.setText(date.toString());
     }
+
+    private void updatePhotoView() {
+        if (mPhotoFile == null || !mPhotoFile.exists()) {
+            mPhotoView.setImageDrawable(null);
+        } else {
+            final ViewTreeObserver vto = mPhotoView.getViewTreeObserver();
+            vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    if (vto.isAlive()) {
+                        vto.removeOnGlobalLayoutListener(this);
+                        int viewWidth = mPhotoView.getMeasuredWidth();
+                        int viewHeight = mPhotoView.getMeasuredHeight();
+                        Bitmap bitmap = PictureUtils.getScaledBitmap(
+                                mPhotoFile.getPath(),
+                                viewWidth,
+                                viewHeight);
+                        mPhotoView.setImageBitmap(bitmap);
+                    }
+                }
+            });
+        }
+    }
+
 
     private String getCrimeReport() {
         String solvedString = null;
@@ -261,7 +298,10 @@ public class CrimeFragment extends Fragment {
         }
 
         String report = getString(R.string.crime_report,
-                mCrime.getTitle(), dateString, solvedString, suspect);
+                mCrime.getTitle(),
+                dateString,
+                solvedString,
+                suspect);
 
         return report;
     }

@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="example.chen.com.criminalintent">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -18,16 +22,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Controller.Activity.CrimePagerActivity"
-            android:parentActivityName=".Controller.Activity.CrimeListActivity"/>
+        <activity
+            android:name=".Controller.Activity.CrimePagerActivity"
+            android:parentActivityName=".Controller.Activity.CrimeListActivity" />
+
         <provider
-            android:authorities="example.chen.com.criminalintent.fileprovider"
             android:name="android.support.v4.content.FileProvider"
+            android:authorities="example.chen.com.criminalintent.fileprovider"
             android:exported="false"
-            android:grantUriPermissions="true"/>
-        <meta-data
-            android:name="android.support.FILE_PROVIDER_PATHS"
-            android:resource="@xml/files"/>
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/files" />
+        </provider>
+
 
     </application>
 
