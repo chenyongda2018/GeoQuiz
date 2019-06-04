@@ -89,7 +89,7 @@ public class CrimeLab {
 
     public File getPhotoFile(Crime crime) {
         File fileDir = mContext.getFilesDir();
-        return new File(fileDir,crime.getPhotoFilename());
+        return new File(fileDir, crime.getPhotoFilename());
     }
 
     /**
@@ -104,7 +104,7 @@ public class CrimeLab {
                 if (crime.getId().toString().equals(id.toString())) {
                     return order;
                 }
-                order ++;
+                order++;
             }
         } finally {
             cursor.close();
