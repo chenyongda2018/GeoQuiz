@@ -1,13 +1,16 @@
 package example.chen.com.beatbox;
 
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class BeatBoxActivity extends AppCompatActivity {
+import example.chen.com.beatbox.base.SingleFragmentActivity;
+
+public class BeatBoxActivity extends SingleFragmentActivity {
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_braet_box);
+    protected Fragment createFragment() {
+        return BeatBoxFragment.newInstance();
     }
 }
