@@ -11,7 +11,7 @@
     </style>
 
     <style name="BeatBoxButton" parent="Widget.AppCompat.Button">
-        <item name="android:background">@color/dark_blue</item>
+        <item name="android:background">@drawable/button_beat_box</item>
     </style>
 
     <!--表明继承了BeatBoxButton的属性-->

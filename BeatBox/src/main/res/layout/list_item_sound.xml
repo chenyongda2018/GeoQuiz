@@ -9,12 +9,17 @@
             type="example.chen.com.beatbox.viewmodel.SoundViewModel" />
     </data>
 
-    <Button
-        android:id="@+id/sound_name"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:text="@{ viewModel.title ??  `No file`}"
-        android:onClick="@{() -> viewModel.onButtonClicked() }"
-        android:background="?attr/colorAccent"
-        tools:text="Sound name" />
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp">
+        <Button
+            android:id="@+id/sound_name"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:text="@{ viewModel.title ??  `No file`}"
+            android:onClick="@{() -> viewModel.onButtonClicked() }"
+            tools:text="Sound name" />
+    </FrameLayout>
 </layout>
