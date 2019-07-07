@@ -1,1 +1,1 @@
-include ':app', ':BeatBox', ':CriminalIntent'
+include ':app', ':BeatBox', ':CriminalIntent', ':nerdlauncher', ':NerdLauncher', ':nerdlauncher', ':NerdLauncher2'
