@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -44,6 +46,7 @@ public class NerdLauncherFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_nerd_launcher, container, false);
+
         mRecyclerView = v.findViewById(R.id.app_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         setUpAdapter();
@@ -106,6 +109,10 @@ public class NerdLauncherFragment extends Fragment {
             Log.d(TAG,"类名:"+ activityInfo.name);
 
             startActivity(i);
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            String pathName;
+
         }
     }
 
@@ -136,5 +143,24 @@ public class NerdLauncherFragment extends Fragment {
         public int getItemCount() {
             return mResolveInfos.size();
         }
+    }
+
+
+    public static int calculateInSampleSize(BitmapFactory.Options options,int reqWidht,int reqHeight) {
+        //Bitmap的原大小
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int sampleSize = 1;
+
+        if (height > reqHeight || width > reqHeight ) {
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+            //设置合适的inSampleSize
+            while (halfHeight / sampleSize >=reqHeight
+                     && halfWidth / sampleSize >= reqWidht) {
+                sampleSize *= 2;
+            }
+        }
+        return sampleSize;
     }
 }
